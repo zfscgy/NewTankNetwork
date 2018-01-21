@@ -21,6 +21,8 @@ namespace ZF.StartGame
         public InputField inputPort;
         public Text textConnectionInfo;
         public Button buttonConnect;
+        public InputField inputPlayerName;
+        public Button buttonRename;
         public InputField inputRoomName;
         public Button buttonStartServer;
         public Text textState;
@@ -30,7 +32,7 @@ namespace ZF.StartGame
 
         public GameObject panelLeft;
         public GameObject panelMid;
-
+        public GameObject panelRight;
         public string[] RoomInfos;
         //Scripts
         public LobbyManager lobbyManager;
@@ -61,6 +63,10 @@ namespace ZF.StartGame
         public void OnClick_ButtonConnect()
         {
             TryConnectToPhotonServer();
+        }
+        public void OnClick_ButtonRename()
+        {
+            lobbyManager.RenamePlayer(inputPlayerName.text);
         }
         public void OnClick_ButtonPlayOffline()
         {
@@ -153,8 +159,8 @@ namespace ZF.StartGame
                 textState.text = "已经作为服务器启动！";
             }
             buttonStartServer.enabled = false;
-            panelLeft.SetActive(false);
             panelMid.SetActive(false);
+            panelRight.SetActive(true);
             return true;
         }
         private bool TryJoinRoom(string roomName)
@@ -170,6 +176,7 @@ namespace ZF.StartGame
                 state = State.InRoom;
                 //panelLeft.SetActive(false);
                 panelMid.SetActive(false);
+                panelRight.SetActive(true);
                 return true;
             }
             else

@@ -44,6 +44,11 @@ namespace ZF.StartGame
             }
         }
 
+        public void RenamePlayer(string newName)
+        {
+            PhotonNetwork.player.NickName = newName;
+        }
+
         public int PlayOffline()
         {
             GameState.mode = GameMode.inOfflineGame;
@@ -74,7 +79,6 @@ namespace ZF.StartGame
                 GameState.mode = GameMode.inRoom;
                 RoomManager roomManager = roomController.GetComponent<RoomManager>();
                 roomManager.enabled = true;
-                roomManager.OnJoinedRoom();
                 return true;
             }
             return false;
@@ -91,7 +95,7 @@ namespace ZF.StartGame
             int i = 0;
             foreach(RoomInfo roominfo in roomList)
             {
-                RoomInfos[i] = roominfo.Name + " " + roominfo.PlayerCount.ToString() + "/" + roominfo.MaxPlayers.ToString();
+                RoomInfos[i] = roominfo.Name + " " + (roominfo.PlayerCount - 1).ToString() + "/" + Global.playerPerRoom.ToString();
                 i++;
             }
             return RoomInfos;
