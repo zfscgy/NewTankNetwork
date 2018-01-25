@@ -12,6 +12,7 @@ namespace ZF.MainGame.Base
         None,
         Local,
         Sync,
+        Server,
     }
     class TankMotion:MonoBehaviour
     {
@@ -20,10 +21,10 @@ namespace ZF.MainGame.Base
         public TankNetworkComponents tankNetworkComponents;
         private Instruction instruction;
         private TankMode mode;
-        private Rigidbody rigidbody;
+        private Rigidbody m_rigidbody;
         private void Start()
         {
-            rigidbody = GetComponent<Rigidbody>();
+            m_rigidbody = GetComponent<Rigidbody>();
             foreach(WheelRotate wheels in tankComponents.LeftWheels)
             {
                 wheels.Init(tankConfig.speedMax, tankConfig.torqueMax);
@@ -35,17 +36,38 @@ namespace ZF.MainGame.Base
         }
         private void FixedUpdate()
         {
-            if(mode == TankMode.Sync)
+            if (mode == TankMode.Sync)
             {
-                transform.position = tankNetworkComponents.referenceTankBody.position;
-                tankComponents.turret.position = tankNetworkComponents.referenceTurret.position;
-                return;
+                if (tankNetworkComponents.isSet)
+                {
+                    transform.position = tankNetworkComponents.referenceTankBody.position;
+                    transform.rotation = tankNetworkComponents.referenceTurret.rotation;
+                    tankComponents.turret.rotation = tankNetworkComponents.referenceTurret.rotation;
+                }
             }
-            ExecuteInstruction();
+            else if (mode == TankMode.Server)
+            {
+                ExecuteInstruction();
+                if (tankNetworkComponents.isSet)
+                {
+                    tankNetworkComponents.referenceTankBody.position = transform.position;
+                    tankNetworkComponents.referenceTankBody.rotation = transform.rotation;
+                    tankNetworkComponents.referenceTurret.rotation = tankComponents.turret.rotation;
+                }
+            }
+            else
+            {
+                ExecuteInstruction();
+            }
         }
         #region Private Methods
         private void ExecuteInstruction()
         {
+            if(instruction == null)
+            {
+                Debug.Log("No instruction specified!");
+                return;
+            }
             Move(instruction.GetWS(),instruction.GetAD());
             ControlTurret(instruction.GetTargetPosition());
         }
@@ -78,29 +100,29 @@ namespace ZF.MainGame.Base
             {
                 if (!isAutoParking)
                 {
-                    if (rateStep < tankConfig.autoParkingRate && rigidbody.velocity.magnitude < tankConfig.autoParkingSpeed)
+                    if (rateStep < tankConfig.autoParkingRate && m_rigidbody.velocity.magnitude < tankConfig.autoParkingSpeed)
                     {
                         lagCount += Time.fixedDeltaTime;
                         if (lagCount > tankConfig.autoParkingBrakeLag)
                         {
                             isAutoParking = true;
-                            rigidbody.constraints = RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotationY;
+                            m_rigidbody.constraints = RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotationY;
                         }
                     }
                 }
                 else
                 {
-                    if(rateStep > tankConfig.autoParkingRate || rigidbody.velocity.magnitude > tankConfig.autoParkingSpeed)
+                    if(rateStep > tankConfig.autoParkingRate || m_rigidbody.velocity.magnitude > tankConfig.autoParkingSpeed)
                     {
                         isAutoParking = false;
-                        rigidbody.constraints = RigidbodyConstraints.None;
+                        m_rigidbody.constraints = RigidbodyConstraints.None;
                     }
                 }
             }
             else
             {
                 isAutoParking = false;
-                rigidbody.constraints = RigidbodyConstraints.None;
+                m_rigidbody.constraints = RigidbodyConstraints.None;
             }
         }
         private void ControlTurret(Vector3 targetPosition)
@@ -112,6 +134,18 @@ namespace ZF.MainGame.Base
         public void SetMode(TankMode _mode)
         {
             mode = _mode;
+            if(mode == TankMode.Sync)
+            {
+                GetComponent<Rigidbody>().isKinematic = true;
+                foreach (WheelRotate wheels in tankComponents.LeftWheels)
+                {
+                    wheels.GetComponent<Rigidbody>().isKinematic = true;
+                }
+                foreach (WheelRotate wheels in tankComponents.RightWheels)
+                {
+                    wheels.GetComponent<Rigidbody>().isKinematic = true;
+                }
+            }
         }
         public void SetInstruction(Instruction _instruction)
         {

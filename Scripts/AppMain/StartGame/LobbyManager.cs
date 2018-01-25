@@ -11,6 +11,10 @@ namespace ZF.StartGame
     {
         public GameObject roomController;
 
+        private void Start()
+        {
+            PhotonNetwork.autoJoinLobby = true;
+        }
         public int ConnectToPhotonServer(string hostAddress, int port)
         {
             if (!PhotonNetwork.connected)
@@ -19,6 +23,7 @@ namespace ZF.StartGame
                 {
                     GameState.isOnline = true;
                     GameState.mode = GameMode.inLobby;
+                    GameSettings.serverIPAddress = hostAddress;
                     return 0;
                 }
                 else
@@ -65,7 +70,7 @@ namespace ZF.StartGame
             GameState.mode = GameMode.isServer;
             if (PhotonNetwork.CreateRoom(roomName))
             {
-                roomController.GetComponent<Server.ServerController>().enabled = true;
+                roomController.GetComponent<Server.ServerRoomController>().enabled = true;
                 roomController.GetComponent<RoomManager>().enabled = true;
                 return 0;
             }

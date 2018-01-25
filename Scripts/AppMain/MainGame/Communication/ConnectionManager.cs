@@ -9,7 +9,6 @@ namespace ZF.Communication
     {
         public InstructionManager instructionManager;
         private Instruction currentInstruction;
-
         private void Start()
         {
             if(photonView.isMine)
@@ -23,14 +22,6 @@ namespace ZF.Communication
         }
         private void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
         {
-            if(stream.isWriting)
-            {
-                stream.SendNext(currentInstruction.ToByte());
-            }
-            else
-            {
-                currentInstruction = Instruction.ByteToInstruction((byte[])stream.ReceiveNext());
-            }
         }
 
         public Instruction GetInstruction()

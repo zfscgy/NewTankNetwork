@@ -11,13 +11,14 @@ namespace ZF.StartGame
     {
         public Text textRoomName;
         public Button buttonExitRoom;
-
+        public Button buttonStartGame;
         public GameObject[] RoomSeats;
         public Text[] RoomSeatTexts;
         private int[] SeatsToID;
         private int playerID;
 
         public ConnectScene connectScene;
+        public Server.ServerRoomController serverRoomController;
         #region Photon.Monobehavior Callbacks        
         private void Start()
         {
@@ -26,6 +27,11 @@ namespace ZF.StartGame
             {
                 RoomSeatTexts[i] = RoomSeats[i].GetComponentInChildren<Text>();
             }
+            if(Global.GameState.mode != Global.GameMode.isServer)
+            {
+                buttonStartGame.gameObject.SetActive(false);
+            }
+            PhotonNetwork.automaticallySyncScene = true;
         }
         private void Update()
         {
@@ -52,7 +58,7 @@ namespace ZF.StartGame
         {
             connectScene.OnClick_ButtonConnect();
             enabled = false;
-            transform.parent.gameObject.SetActive(false);
+            
         }
         #endregion
         #region UI Events
@@ -60,8 +66,13 @@ namespace ZF.StartGame
         {
             Global.GameState.mode = Global.GameMode.inLobby;
             PhotonNetwork.LeaveRoom();
-            connectScene.panelRight.SetActive(true);
+            transform.parent.gameObject.SetActive(false);
             connectScene.panelMid.SetActive(true);
+        }
+        public void OnClick_ButtonStartGame()
+        {
+            Global.GameState.stage = Global.GameStage.preparing;
+            serverRoomController.StartGame();
         }
         public void OnClick_ChangeSeat(int targetSeat)
         {
