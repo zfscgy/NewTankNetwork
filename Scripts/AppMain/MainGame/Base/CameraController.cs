@@ -14,6 +14,11 @@ namespace ZF.MainGame.Base
         private Transform followingTransform;
         private ZF.Communication.InputManager inputManager;
         private Camera mainCamera;
+
+        private void Start()
+        {
+            mainCamera = GetComponentInChildren<Camera>();
+        }
         private void FixedUpdate()
         {
             if(inputManager == null)
@@ -21,18 +26,38 @@ namespace ZF.MainGame.Base
                 return;
             }
             ControlCamera();
+            ControlZoom();
         }
 
         private void ControlCamera()
         {
             float angVelocityY = inputManager.GetMouseMotion().x * cameraConfig.rotateSpeed_1 * Global.GameSettings.MouseSensitivty * Time.fixedDeltaTime;
             float angVelocityX = - inputManager.GetMouseMotion().y * cameraConfig.rotateSpeed_1 * Global.GameSettings.MouseSensitivty * Time.fixedDeltaTime;
-            cameraComponents.cameraPos.localEulerAngles += new Vector3(0, angVelocityY, 0);
+            cameraComponents.cameraBase.localEulerAngles += new Vector3(0, angVelocityY, 0);
             float currentAngleX = cameraComponents.cameraHolder.localEulerAngles.x + angVelocityX;
             currentAngleX = currentAngleX < 180f 
                 ? currentAngleX : currentAngleX - 360f;
             float newAngleX = Mathf.Clamp(currentAngleX, -cameraConfig.directionVMax, -cameraConfig.directionVMin);
             cameraComponents.cameraHolder.localEulerAngles = new Vector3(newAngleX, cameraComponents.cameraHolder.localEulerAngles.y, 0f);
+        }
+
+        private float cameraDistance = 8f;
+        private void ControlZoom()
+        {
+            float zoom = inputManager.GetScroll() * cameraConfig.zoomSpeed * Time.fixedDeltaTime;
+            cameraDistance = Mathf.Clamp(cameraDistance + zoom, cameraConfig.distanceMin, cameraConfig.distanceMax);
+            cameraComponents.camera.localPosition = - cameraDistance * Vector3.forward;
+            if (cameraConfig.distanceMin - 0.1 < cameraDistance && cameraDistance < cameraConfig.distanceMin + 0.3f)
+            {
+                if (zoom < 0.0f)
+                {
+                    mainCamera.fieldOfView = cameraConfig.fov_2;
+                }
+                else if(zoom > 0.0f)
+                {
+                    mainCamera.fieldOfView = cameraConfig.fov_1;
+                }
+            }
         }
 
         public void Init(ZF.Communication.InputManager _inputManager, Transform _followingTransform)
@@ -50,7 +75,16 @@ namespace ZF.MainGame.Base
 
         public Vector3 GetCameraPointing()
         {
-            return new Vector3();
+            Ray cameraRay = mainCamera.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0));
+            RaycastHit hitPoint;
+            if (Physics.Raycast(cameraRay, out hitPoint, 400.0f))
+            {
+                return hitPoint.point;
+            }
+            else
+            {
+                return transform.position + 400.0f * cameraComponents.cameraHolder.forward;
+            }
         }
 
     }

@@ -40,7 +40,7 @@ namespace ZF.Communication
             mouseX = Input.GetAxis("Mouse X");
             mouseY = Input.GetAxis("Mouse Y");
             MouseAction += (Input.GetAxis("Mouse ScrollWheel") > 0) ? (byte)1 : (byte)0;
-            MouseAction += (Input.GetAxis("Mouse ScrollWheel") > 0) ? (byte)2 : (byte)0;
+            MouseAction += (Input.GetAxis("Mouse ScrollWheel") < 0) ? (byte)2 : (byte)0;
             if(Input.GetMouseButton(0))
             {
                 MouseAction += (1 << 2);

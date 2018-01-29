@@ -23,7 +23,7 @@ namespace ZF.Configs
         public float fov_1 = 65f;
         public float fov_2 = 10f;
         //Zooming Speed
-        public float zoomSpeed = 1f;
+        public float zoomSpeed = 15f;
     }
     [System.Serializable]
     public class TankConfig
@@ -58,5 +58,13 @@ namespace ZF.Configs
         public float totalHealth = 100f;
         public float protectionValue = 1f;
         public float ratioToTotalHealth = 0.1f;
+    }
+
+    [System.Serializable]
+    public class ServerCameraConfig
+    {
+        public float fov_1 = 65f;
+        public float movingSpeed = 10f;
+        public float rotationSpeed = 20f;
     }
 }

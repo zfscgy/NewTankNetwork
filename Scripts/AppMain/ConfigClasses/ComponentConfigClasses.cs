@@ -10,15 +10,30 @@ namespace ZF.Configs
     public class CameraComponents
     {
         //Physics Components
-        public Transform cameraPos;
+        public Transform cameraBase;
         public Transform cameraHolder;
+        public Transform camera;
     }
     [System.Serializable]
     public class TankComponents
     {
         public Transform turret;
-        public ZF.MainGame.Base.WheelRotate[] LeftWheels;
-        public ZF.MainGame.Base.WheelRotate[] RightWheels;
+        public Transform gun;
+        public MainGame.Base.WheelRotate[] LeftWheels;
+        public MainGame.Base.WheelRotate[] RightWheels;
+        public Vector3 GetTurretPointing()
+        {
+            Ray turretRay = new Ray(gun.position + 3 * gun.forward, gun.forward);
+            RaycastHit hitPoint;
+            if (Physics.Raycast(turretRay, out hitPoint, Global.GameSettings.maxRayDistance))
+            {
+                return hitPoint.point;
+            }
+            else
+            {
+                return gun.position + Global.GameSettings.maxRayDistance * gun.forward;
+            }
+        }
     }
 
 

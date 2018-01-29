@@ -68,6 +68,7 @@ namespace ZF.Global
                 }
             }
         }
+        public static float maxRayDistance = 400.0f;
 
     }
 

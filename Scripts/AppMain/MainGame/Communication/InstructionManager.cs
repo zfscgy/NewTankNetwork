@@ -42,8 +42,8 @@ namespace ZF.Communication
             bytes[0] = keyAction;
             bytes[1] = mouseAction;
             System.BitConverter.GetBytes(targetPosition.x).CopyTo(bytes,2);
-            System.BitConverter.GetBytes(targetPosition.x).CopyTo(bytes, 6);
-            System.BitConverter.GetBytes(targetPosition.x).CopyTo(bytes, 10);
+            System.BitConverter.GetBytes(targetPosition.y).CopyTo(bytes, 6);
+            System.BitConverter.GetBytes(targetPosition.z).CopyTo(bytes, 10);
             return bytes;
         }
 
@@ -59,8 +59,8 @@ namespace ZF.Communication
             keyAction = InputBytes[0];
             mouseAction = InputBytes[1];
             targetPosition.x = BitConverter.ToSingle(InputBytes, 2);
-            targetPosition.x = BitConverter.ToSingle(InputBytes, 6);
-            targetPosition.x = BitConverter.ToSingle(InputBytes, 10);
+            targetPosition.y = BitConverter.ToSingle(InputBytes, 6);
+            targetPosition.z = BitConverter.ToSingle(InputBytes, 10);
         }
 
         public void SetInstruction(byte _keyAction,byte _mouseAction,Vector3 _targetPosition)
@@ -127,7 +127,7 @@ namespace ZF.Communication
             {
                 return;
             }
-            Vector3 targetPosition = new Vector3();
+            Vector3 targetPosition = cameraController.GetCameraPointing(); 
             currentInstruction.SetInstruction(inputManager.GetKeyAction(), inputManager.GetMouseAction(), targetPosition);
         }
         #endregion

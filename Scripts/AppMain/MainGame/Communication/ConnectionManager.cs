@@ -22,6 +22,7 @@ namespace ZF.Communication
         }
         private void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
         {
+            
         }
 
         public Instruction GetInstruction()

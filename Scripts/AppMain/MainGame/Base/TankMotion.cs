@@ -40,9 +40,12 @@ namespace ZF.MainGame.Base
             {
                 if (tankNetworkComponents.isSet)
                 {
-                    transform.position = tankNetworkComponents.referenceTankBody.position;
-                    transform.rotation = tankNetworkComponents.referenceTurret.rotation;
-                    tankComponents.turret.rotation = tankNetworkComponents.referenceTurret.rotation;
+                    transform.position = tankNetworkComponents.referenceTankBody.localPosition;
+                    transform.rotation = tankNetworkComponents.referenceTankBody.localRotation;
+                    tankComponents.turret.localEulerAngles = 
+                        new Vector3(0, tankNetworkComponents.referenceTurret.localEulerAngles.y, 0);
+                    tankComponents.gun.localEulerAngles =
+                         new Vector3(tankNetworkComponents.referenceTurret.localEulerAngles.x, 0, 0);
                 }
             }
             else if (mode == TankMode.Server)
@@ -50,9 +53,10 @@ namespace ZF.MainGame.Base
                 ExecuteInstruction();
                 if (tankNetworkComponents.isSet)
                 {
-                    tankNetworkComponents.referenceTankBody.position = transform.position;
-                    tankNetworkComponents.referenceTankBody.rotation = transform.rotation;
-                    tankNetworkComponents.referenceTurret.rotation = tankComponents.turret.rotation;
+                    tankNetworkComponents.referenceTankBody.localPosition = transform.position;
+                    tankNetworkComponents.referenceTankBody.localRotation = transform.rotation;
+                    tankNetworkComponents.referenceTurret.localEulerAngles =
+                        new Vector3(tankComponents.gun.localEulerAngles.x, tankComponents.turret.localEulerAngles.y, 0);
                 }
             }
             else
@@ -125,14 +129,24 @@ namespace ZF.MainGame.Base
                 m_rigidbody.constraints = RigidbodyConstraints.None;
             }
         }
+
+        public Transform virtualTurret;
         private void ControlTurret(Vector3 targetPosition)
         {
-
+            Quaternion origin = virtualTurret.localRotation;
+            virtualTurret.LookAt(targetPosition);
+            virtualTurret.localRotation = Quaternion.RotateTowards(origin, virtualTurret.localRotation, tankConfig.gunXSpeed * Time.fixedDeltaTime);
+            float angle_x = virtualTurret.localEulerAngles.x > 180f ?
+                virtualTurret.localEulerAngles.x - 360f : virtualTurret.localEulerAngles.x;
+            angle_x = Mathf.Clamp(angle_x, -tankConfig.gunXMax, -tankConfig.gunXMin);
+            tankComponents.turret.localEulerAngles = new Vector3(0, virtualTurret.localEulerAngles.y, 0);
+            tankComponents.gun.localEulerAngles = new Vector3(angle_x, 0, 0);
         }
 
         #endregion
         public void SetMode(TankMode _mode)
         {
+
             mode = _mode;
             if(mode == TankMode.Sync)
             {
