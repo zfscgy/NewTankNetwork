@@ -1,0 +1,112 @@
+<root>
+
+	<Tank ID = "0">	
+		<config name = "TankWeapons">
+			<damage>10</damage>
+			<number>100</number>
+		</config>
+		
+		<config name = "TankControl">
+            <shootInterval>2.0</shootInterval>
+            <turretYSpeed>10.0</turretYSpeed>
+            <gunXSpeed>10.0</gunXSpeed>
+            <gunXMax>30.0</gunXMax>
+            <gunXMin>-10.0</gunXMin>
+            <maxRpm>200</maxRpm>
+            <motorTorque>8000.0</motorTorque>
+            <brakeTorque>2000.0</brakeTorque>
+            <steeringSpeed>5.0</steeringSpeed>
+            <maxSteering>10.0</maxSteering>
+            <steeringBack>5.0</steeringBack>
+		</config>
+
+		<config name = "TankHealth">
+			<health>100</health>
+            <protection>0.7</protection>
+            <turret.health>100</turret.health>
+            <turret.protection>1.0</turret.protection>
+            <bottom.health>100</bottom.health>
+            <bottom.protection>1.0</bottom.protection>
+		</config>
+
+		<config name = "Bullet">
+		    <speed>1000.0</speed>
+            <explosion.name>ExplosionMobile</explosion.name>
+            <maxExistTime>10.0</maxExistTime>
+		</config>
+	</Tank>
+
+		
+	<Tank ID = "1">	
+		<config name = "TankWeapons">
+			<damage>2</damage>
+			<number>500</number>
+		</config>
+		
+		<config name = "TankControl">
+            <shootInterval>5.0</shootInterval>
+            <turretYSpeed>50.0</turretYSpeed>
+            <gunXSpeed>50.0</gunXSpeed>
+            <gunXMax>80.0</gunXMax>
+            <gunXMin>-60.0</gunXMin>
+            <maxRpm>2000</maxRpm>
+            <motorTorque>15000.0</motorTorque>
+            <brakeTorque>2000000.0</brakeTorque>
+            <steeringSpeed>50.0</steeringSpeed>
+            <maxSteering>70.0</maxSteering>
+            <steeringBack>30.0</steeringBack>
+		</config>
+
+		<config name = "TankHealth">
+			<health>20</health>
+            <protection>1.0</protection>
+            <turret.health>20</turret.health>
+            <turret.protection>2.0</turret.protection>
+            <bottom.health>20</bottom.health>
+            <bottom.protection>1.0</bottom.protection>
+		</config>
+
+		<config name = "Bullet">
+		    <speed>50.0</speed>
+            <explosion.name>ExplosionMobile</explosion.name>
+            <maxExistTime>2.0</maxExistTime>
+		</config>
+	</Tank>
+		
+	<Tank ID = "2">
+	
+		<config name = "TankWeapons">
+			<damage>30</damage>
+			<number>20</number>
+		</config>
+		
+		<config name = "TankControl">
+            <shootInterval>10.0</shootInterval>
+            <turretYSpeed>2.0</turretYSpeed>
+            <gunXSpeed>2.0</gunXSpeed>
+            <gunXMax>30.0</gunXMax>
+            <gunXMin>-10.0</gunXMin>
+            <maxRpm>20</maxRpm>
+            <motorTorque>15000.0</motorTorque>
+            <brakeTorque>8000.0</brakeTorque>
+            <steeringSpeed>1.0</steeringSpeed>
+            <maxSteering>5.0</maxSteering>
+            <steeringBack>5.0</steeringBack>
+		</config>
+
+		<config name = "TankHealth">
+			<health>1000</health>
+            <protection>10.0</protection>
+            <turret.health>100</turret.health>
+            <turret.protection>2.0</turret.protection>
+            <bottom.health>100</bottom.health>
+            <bottom.protection>1.0</bottom.protection>
+		</config>
+
+		<config name = "Bullet">
+		    <speed>200.0</speed>
+            <explosion.name>Explosion</explosion.name>
+            <maxExistTime>10.0</maxExistTime>
+		</config>
+	</Tank>
+</root>
