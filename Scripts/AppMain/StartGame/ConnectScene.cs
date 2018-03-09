@@ -41,6 +41,12 @@ namespace ZF.StartGame
         private State state;
 
         #region MonoBehavior Callbacks
+
+
+        private void Awake()
+        {
+
+        }
         private void Start()
         {
             RoomNameTexts = new Text[RoomCards.Length];

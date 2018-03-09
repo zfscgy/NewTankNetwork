@@ -35,6 +35,11 @@ namespace ZF.Global
         end
     }
 
+    public static class Singletons
+    {
+        public static WholeGame.WholeGameController wholeGameController;
+    }
+
     public static class GameState
     {
         public static bool isOnline = false;
@@ -43,6 +48,8 @@ namespace ZF.Global
         public static int playerID;
         public static int playerNum;
         public static int[] PlayerIDs;
+        public static MainGame.Stats.HitStat hitStat = new MainGame.Stats.HitStat();
+        public static MainGame.Stats.GameStatManager gameStatManager;
     }
 
     public static class GameSettings
@@ -70,6 +77,8 @@ namespace ZF.Global
         }
         public static float maxRayDistance = 400.0f;
 
+        public const int n_AmmoKind = 1;
+        public const int n_TankBodyPart = 4;
     }
 
 }

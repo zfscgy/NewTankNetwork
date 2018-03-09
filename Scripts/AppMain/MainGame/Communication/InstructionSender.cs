@@ -19,6 +19,7 @@ namespace ZF.Communication
         Socket clientSocket;
         public void Init(string _iPAddress, Instruction _instruction, int _id)
         {
+            enabled = true;
             id = _id;
             iPAddress = IPAddress.Parse(_iPAddress);
             endPoint = new IPEndPoint(iPAddress, Global.instructionListeningPort);
@@ -29,9 +30,9 @@ namespace ZF.Communication
         #region MonoBehavior Callbacks
         private void Start()
         {
-            if(GameState.mode == GameMode.isServer)
+            if (GameState.mode == GameMode.inRoom)
             {
-                enabled = false;
+                enabled = true;
             }
         }
 

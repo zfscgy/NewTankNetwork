@@ -70,6 +70,16 @@ namespace ZF.Communication
             targetPosition = _targetPosition;
         }
 
+        public void SetKey(byte _keyAction)
+        {
+            keyAction = _keyAction;
+        }
+
+        public void SetTargetPosition(Vector3 _targetPosition)
+        {
+            targetPosition = _targetPosition;
+        }
+
         // -1:S  0: 1:W
         public sbyte GetWS()
         {
@@ -102,6 +112,16 @@ namespace ZF.Communication
                 return 0;
             }
         }
+
+        public sbyte GetMouseLeft()
+        {
+            if ((mouseAction >> 2) % 2 == 1)
+            {
+                return 1;
+            }
+            return 0;
+        }
+
         public Vector3 GetTargetPosition()
         {
             return targetPosition;
@@ -123,7 +143,7 @@ namespace ZF.Communication
         }
         private void Update()
         {
-            if(isOverride)
+            if(isOverride || cameraController == null)
             {
                 return;
             }

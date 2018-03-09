@@ -7,27 +7,9 @@ namespace ZF.Communication
 {
     public class ConnectionManager:Photon.MonoBehaviour
     {
-        public InstructionManager instructionManager;
-        private Instruction currentInstruction;
-        private void Start()
+        public int GetPing()
         {
-            if(photonView.isMine)
-            {
-                currentInstruction = instructionManager.GetInstruction();
-            }
-        }
-        private void Update()
-        {
-            
-        }
-        private void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
-        {
-            
-        }
-
-        public Instruction GetInstruction()
-        {
-            return currentInstruction;
+            return PhotonNetwork.GetPing();
         }
     }
 }

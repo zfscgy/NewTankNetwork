@@ -2,16 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Syncer : Photon.MonoBehaviour
+namespace ZF.Communication
 {
-
-	// Use this for initialization
-	void Start ()
+    public class Syncer : Photon.MonoBehaviour
     {
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+        public Transform transform_1;
+        public Transform transform_2;
+    }
 }

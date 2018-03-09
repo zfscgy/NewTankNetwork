@@ -38,7 +38,7 @@ namespace ZF
     public class TankComponents
     {
         TankHealth health;
-        TankWeapons weapons;
+        TankWeapon weapons;
     }
     [System.Serializable]
     public class Wheel

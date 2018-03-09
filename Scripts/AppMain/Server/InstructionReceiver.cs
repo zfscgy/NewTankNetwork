@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System;
+using UnityEngine.SceneManagement;
 namespace ZF.Server.InstructionServer
 {
     using ZF.Communication;
@@ -30,18 +31,7 @@ namespace ZF.Server.InstructionServer
         // Use this for initialization
         void Start()
         {
-            for (int i = 0; i < ReceivedInstructions.Length; i++)
-            {
-                ReceivedInstructions[i] = new Instruction();
-            }
-            if (GameState.mode != GameMode.isServer)
-            {
-                enabled = false;
-            }
-            else
-            {
-                Init();
-            }
+            SceneManager.sceneUnloaded += ExitMainGame;            
         }
 
         // Update is called once per frame
@@ -62,6 +52,11 @@ namespace ZF.Server.InstructionServer
         #endregion
         public void Init()
         {
+            enabled = true;
+            for (int i = 0; i < ReceivedInstructions.Length; i++)
+            {
+                ReceivedInstructions[i] = new Instruction();
+            }
             udpListener = new UdpClient(Global.instructionListeningPort);
             endPoint = new IPEndPoint(IPAddress.Any, Global.instructionListeningPort);
         }
@@ -72,6 +67,16 @@ namespace ZF.Server.InstructionServer
         public void StopListen()
         {
             isListening = false;
+        }
+        public void CloseConnection()
+        {
+            isListening = false;
+            udpListener.Close();
+        }
+
+        public void ExitMainGame(Scene scene)
+        {
+            CloseConnection();
         }
     }
 }

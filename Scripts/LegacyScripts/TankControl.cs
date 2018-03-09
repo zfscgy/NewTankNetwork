@@ -186,7 +186,7 @@ public class TankControl : Photon.MonoBehaviour,IFetchTankInfo
         gameStage = GameStage.ending;
         enteredTime = Time.time;
         counterText.enabled = true;
-        GetComponent<TankWeapons>().UploadGameStat();
+        GetComponent<TankWeapon>().UploadGameStat();
     }
     #endregion
 
@@ -222,7 +222,7 @@ public class TankControl : Photon.MonoBehaviour,IFetchTankInfo
             return;
         }
         //Call the shoot function in TankWeapons
-        GetComponent<TankWeapons>().Shoot();
+        GetComponent<TankWeapon>().Shoot();
         lastShootTime = Time.time;
     }
 

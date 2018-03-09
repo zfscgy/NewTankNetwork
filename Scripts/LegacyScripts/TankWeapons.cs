@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using ConfigManager;
 using ZF;
 
-public class TankWeapons : Photon.MonoBehaviour {
+public class TankWeapon : Photon.MonoBehaviour {
     //Read Config
     public XMLConfigReader weaponConfigReader;
 

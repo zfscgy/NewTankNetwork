@@ -22,6 +22,10 @@ namespace ZF.MainGame.UI
         }
         private void Update()
         {
+            if (mainCamera == null)
+            {
+                return;
+            }
             actualPoint.rectTransform.position = mainCamera.WorldToScreenPoint(tankComponents.GetTurretPointing());
         }
         #endregion

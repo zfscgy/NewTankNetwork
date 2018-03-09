@@ -89,7 +89,7 @@ namespace ConfigManager
             tankcontrol.maxSteering = float.Parse(TermDataDic["maxSteering"]);
             tankcontrol.steeringBack = float.Parse(TermDataDic["steeringBack"]);*/
         }
-        public void SetTankWeapons(string xmlFilePath, string ProgName, TankWeapons tankweapons, int choice)
+        public void SetTankWeapons(string xmlFilePath, string ProgName, TankWeapon tankweapons, int choice)
         {
             GetXMLInformation(xmlFilePath, ProgName, choice);
             tankweapons.Weapons[0].damage = int.Parse(TermDataDic["damage"]);
