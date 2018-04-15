@@ -75,6 +75,11 @@ namespace ZF.Communication
             keyAction = _keyAction;
         }
 
+        public void SetMouse(byte _mouseAction)
+        {
+            mouseAction = _mouseAction;
+        }
+
         public void SetTargetPosition(Vector3 _targetPosition)
         {
             targetPosition = _targetPosition;

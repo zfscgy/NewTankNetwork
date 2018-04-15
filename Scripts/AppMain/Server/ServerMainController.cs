@@ -5,12 +5,13 @@ using UnityEngine;
 namespace ZF.Server
 {
     using MainGame;
+    using MainGame.Environment;
     using MainGame.Base;
     using MainGame.Base.Weapon;
     using Global;
     using Communication;
     using InstructionServer;
-    public class ServerMainController : Photon.MonoBehaviour
+    public class ServerMainController : Photon.MonoBehaviour,IMainMaster
     {
         int[] playerList;
         public BirthPoints birthPoints; 
@@ -20,27 +21,23 @@ namespace ZF.Server
         public InstructionReceiver instructionReceiver;
         public MainGame.Stats.GameStatManager statManager;
         public ServerUIController serverUIController;
+        public ServerInfoHUD serverInfoHUD;
         public InputManager serverInputManager;
+        public SensoringSimulator sensoringSimulator;
         Instruction[] clientInstructions = new Instruction[Global.playerPerRoom + 1];
-        Tank[] clientTanks = new Tank[Global.playerPerRoom];
-
+        Tank[] clientTanks = Singletons.gameRoutineController.GetTanks();
         ServerCameraController serverCameraController;
         int[] SyncerViewIDs = new int[Global.playerPerRoom + 1];
 
-        private void Start()
+        //If server is offline, we do not assume that there will be any client player
+        //There are just bots.
+        //And the method about client players will never be invoked.
+        //It is just a lazy way to create an all-bot game
+        private bool isOffline = false;
+        public void SetOfflineMode()
         {
-            PhotonNetwork.sendRate = 100;
-            PhotonNetwork.sendRateOnSerialize = 30;
-            if (GameState.mode == GameMode.isServer)
-            {
-                Init();
-            }
-            else
-            {
-                enabled = false;
-            }
+            isOffline = true;
         }
-
         public void Init()
         {
 
@@ -48,39 +45,38 @@ namespace ZF.Server
             /*At the beginning of the mainGame, the server will get playerList from server's roomController
              * Then instantiaite all the player tanks locally
              * */
-            instructionReceiver.Init();
-            for(int i = 0; i < playerList.Length; i++)
+            if (!isOffline)
             {
-                int index = playerList[i];
-                if (index != -1)
+                instructionReceiver.Init();
+                for (int i = 0; i < playerList.Length; i++)
                 {
-                    Transform startTransform = birthPoints.points[i];
-                    GameObject newPlayer = Instantiate(playerPrefab, startTransform.position,startTransform.rotation);
-                    clientTanks[i] = newPlayer.GetComponentInChildren<Tank>();
-                    Syncer newSyncer = PhotonNetwork.Instantiate(syncerPrefab.name,
-                        clientTanks[i].transform.position, clientTanks[i].transform.rotation, 0).GetComponent<Syncer>();
-                    SyncerViewIDs[i] = newSyncer.gameObject.GetPhotonView().viewID;
-                    clientTanks[i].motion.tankNetworkComponents.Set(newSyncer);
-                    clientTanks[i].InitOnServer(i, instructionReceiver.ReceivedInstructions[index], newSyncer);                    
+                    int index = Singletons.gameRoutineController.RegisterNewTank(playerList[i]);
+                    if (index != -1)
+                    {
+                        Transform startTransform = birthPoints.points[i];
+                        GameObject newPlayer = Instantiate(playerPrefab, startTransform.position, startTransform.rotation);
+                        clientTanks[i] = newPlayer.GetComponentInChildren<Tank>();
+                        Syncer newSyncer = PhotonNetwork.Instantiate(syncerPrefab.name,
+                            clientTanks[i].transform.position, clientTanks[i].transform.rotation, 0).GetComponent<Syncer>();
+                        SyncerViewIDs[i] = newSyncer.gameObject.GetPhotonView().viewID;
+                        clientTanks[i].motion.tankNetworkComponents.Set(newSyncer);
+                        clientTanks[i].InitOnServer(i, instructionReceiver.ReceivedInstructions[index], newSyncer);
+                    }
                 }
+            }
+            else
+            {
+                serverUIController.Init();
+                sensoringSimulator.Init(clientTanks);
             }
             statManager.Init(clientTanks);
             serverCameraController = Instantiate(serverCameraPreafab, 
                 birthPoints.points[0].position + new Vector3(0,5,0),
                 birthPoints.points[0].rotation).GetComponent<ServerCameraController>();
             serverCameraController.Init(serverInputManager);
+            serverInfoHUD.Init(statManager.GetAllStats(), clientTanks, serverCameraController.GetComponent<Camera>());
         }
 
-        public void AddBot(Tank bot)
-        {
-            int seat = GameState.playerNum - 1;
-            clientTanks[seat] = bot;
-            Syncer newSyncer = PhotonNetwork.Instantiate(syncerPrefab.name,
-                clientTanks[seat].transform.position, clientTanks[seat].transform.rotation, 0).GetComponent<Syncer>();
-            int newSyncerID = newSyncer.photonView.viewID;
-            bot.InitAI(seat, true, newSyncer);
-            photonView.RPC("RPCSetBot", PhotonTargets.Others, seat, newSyncerID);
-        }
 
         int ready = 0;
         [PunRPC]
@@ -100,7 +96,41 @@ namespace ZF.Server
                 }
                 instructionReceiver.StartListening();
                 serverUIController.Init();
+                sensoringSimulator.Init(clientTanks);
             }           
+        }
+
+        bool IMainMaster.SetBot(Tank aiTank)
+        {
+            int botSeatID = Singletons.gameRoutineController.RegisterNewTank();
+            if(botSeatID == -1)
+            {
+                return false;
+            }
+            aiTank.transform.position = birthPoints.points[botSeatID].position;
+            aiTank.transform.rotation = birthPoints.points[botSeatID].rotation;
+            clientTanks[botSeatID] = aiTank;
+            if (!isOffline)
+            {
+                Syncer newSyncer = PhotonNetwork.Instantiate(syncerPrefab.name,
+                    clientTanks[botSeatID].transform.position,
+                    clientTanks[botSeatID].transform.rotation, 0).GetComponent<Syncer>();
+
+                int newSyncerID = newSyncer.photonView.viewID;
+                aiTank.InitAI(botSeatID, true, newSyncer);
+                photonView.RPC("RPCSetBot", PhotonTargets.Others, botSeatID, newSyncerID);
+            }
+            else
+            {
+                aiTank.InitAI(botSeatID, false);
+            }
+            statManager.AddTank(aiTank);
+            return true;
+        }
+
+        bool IMainMaster.DeleteBot(Tank aiTank)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

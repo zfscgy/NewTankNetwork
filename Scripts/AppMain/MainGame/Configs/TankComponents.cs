@@ -21,6 +21,7 @@ namespace ZF.Configs
         public Transform gun;
         public MainGame.Base.WheelRotate[] LeftWheels;
         public MainGame.Base.WheelRotate[] RightWheels;
+        public GameObject deadEffect;
         public Vector3 GetTurretPointing()
         {
             Ray turretRay = new Ray(gun.position + 3 * gun.forward, gun.forward);

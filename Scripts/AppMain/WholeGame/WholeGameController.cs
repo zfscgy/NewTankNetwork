@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 namespace ZF.WholeGame
@@ -17,6 +18,7 @@ namespace ZF.WholeGame
     {
         public GameObject GameStartController;
         public GameObject GameStartUI;
+        public MainGameLoader mainGameLoader;
         private void Start()
         {
             DontDestroyOnLoad(GameStartController);
@@ -27,7 +29,14 @@ namespace ZF.WholeGame
         }
         private void Update()
         {
-            
+            if(isBusy)
+            {
+                if(Time.time - startTime > waitingTime)
+                {
+                    waitingEvent();
+                    isBusy = false;
+                }
+            }
         }
 
         public void LoadMainGame()
@@ -50,7 +59,22 @@ namespace ZF.WholeGame
             }
         }
 
-
+        private bool isBusy = false;
+        public delegate void WaitingEvent();
+        private WaitingEvent waitingEvent;
+        private float startTime;
+        private float waitingTime;
+        public bool WaitToExec(WaitingEvent _waitingEvent, float _waitingTime)
+        {
+            if(isBusy)
+            {
+                return false;
+            }
+            waitingEvent = _waitingEvent;
+            waitingTime = _waitingTime;
+            isBusy = true;
+            return true;
+        }
 
     }
 }

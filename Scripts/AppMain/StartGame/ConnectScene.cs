@@ -84,6 +84,16 @@ namespace ZF.StartGame
             Global.GameState.mode = Global.GameMode.inOfflineGame;
             lobbyManager.PlayOffline();
         }
+        public void OnClick_ButtonPlayOfflineAIServer()
+        {
+            if (state == State.InRoom)
+            {
+                textState.text = "请先退出房间！";
+                return;
+            }
+            Global.GameState.mode = Global.GameMode.inOfflineGame;
+            lobbyManager.PlayOfflineAIServer();
+        }
         public void OnClick_ButtonStartServer()
         {
             TryStartAsServer();

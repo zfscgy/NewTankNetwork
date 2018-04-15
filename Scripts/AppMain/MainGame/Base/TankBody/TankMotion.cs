@@ -24,7 +24,6 @@ namespace ZF.MainGame.Base
         public Rigidbody m_rigidbody;
 
         private Vector3[] lastPosition = new Vector3[2];
-        private int posI = 0;
         private void Start()
         {
             m_rigidbody = GetComponent<Rigidbody>();
@@ -36,14 +35,14 @@ namespace ZF.MainGame.Base
             {
                 wheels.Init(tankConfig.speedMax, tankConfig.torqueMax);
             }
-            lastPosition[posI] = transform.position;
-            posI = (posI + 1) % 2;
+            lastPosition[0] = transform.position;
         }
 
         private void FixedUpdate()
         {
-            lastPosition[posI] = transform.position;
-            posI = (posI + 1) % 2;
+            lastPosition[0] = lastPosition[1];
+            lastPosition[1] = transform.position;
+
             if (mode == TankMode.Sync)
             {
                 if (tankNetworkComponents.isSet)
@@ -188,6 +187,10 @@ namespace ZF.MainGame.Base
         public byte GetSpeed()
         {
             return (byte)(int)((lastPosition[1] - lastPosition[0]).magnitude / Time.fixedDeltaTime * 3.6f);
+        }
+        public Vector3 GetVelocity()
+        {
+            return 1/ Time.fixedDeltaTime * (lastPosition[1] - lastPosition[0]);
         }
     }
 }

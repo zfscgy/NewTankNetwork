@@ -15,7 +15,10 @@ namespace ZF.MainGame.Stats
 
         private void Update()
         {
-            UpdatePlayerSpeedStat();
+            if (localPlayerTank != null)
+            {
+                UpdatePlayerSpeedStat();
+            }
         }
 
         public void Init(Base.Tank[] _PlayerTanks)
@@ -38,6 +41,12 @@ namespace ZF.MainGame.Stats
                 }
             }
         }
+
+        public void AddTank(Base.Tank newTank)
+        {
+            PlayerStats[newTank.seatID] = newTank.GetStat();
+        }
+
         public void SerializeAllStat()
         {
             int Length = 5 + GameSettings.n_AmmoKind + GameSettings.n_TankBodyPart;
@@ -46,6 +55,10 @@ namespace ZF.MainGame.Stats
             {
                 PlayerStats[i].ToByte5().CopyTo(AllStatBytes, i * 5);
             }
+        }
+        public TankStat[] GetAllStats()
+        {
+            return PlayerStats;
         }
 
         public void CallClientToUpdateStat(int index)

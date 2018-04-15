@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 namespace ZF.MainGame.Base
 {
+    using ZF.Configs;
     public enum TankPart
     {
         Turret = 0,
@@ -60,12 +61,15 @@ namespace ZF.MainGame.Base
             int loss = (int) (Parts[(int)part].TakeDamage(damage / config.tankProtection) * Parts[(int)part].config.ratio);
             tankHealth -= loss;
             isKilled = false;
-            if(tankHealth < 0)
+            GetComponent<Tank>().UpdateTankInfo();
+            if(tankHealth <= 0)
             {
                 isKilled = true;
                 tankHealth = 0;
+                TankDead();
             }
-            GetComponent<Tank>().UpdateTankInfo();
+
+            Debug.Log("Health Remain:" + tankHealth);
             return lastHealth - tankHealth;
         }
         public int[] GetHealthInfo()
@@ -77,6 +81,19 @@ namespace ZF.MainGame.Base
             }
             HealthInfo[Parts.Length] = tankHealth;
             return HealthInfo;
+        }
+
+        private void TankDead()
+        {
+            Tank tank = GetComponent<Tank>();
+            tank.Die();
+            Instantiate(tank.motion.tankComponents.deadEffect, transform);
+            Global.Singletons.gameRoutineController.OnePlayerDie(tank.seatID);
+        }
+
+        public bool IsDead()
+        {
+            return tankHealth == 0;
         }
     }
 }

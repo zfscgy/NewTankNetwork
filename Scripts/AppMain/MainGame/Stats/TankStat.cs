@@ -20,6 +20,11 @@ namespace ZF.MainGame.Stats
         { }
     }
 
+
+    /// <summary>
+    /// This class handles player tank's information during main game.
+    /// It provide ways to serialize the data.
+    /// </summary>
     public class TankStat
     {
         public int health;

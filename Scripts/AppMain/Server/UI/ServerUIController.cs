@@ -53,5 +53,9 @@ namespace ZF.Server
         {
             mainGameAIController.AddOneBot();
         }
+        public void OnClick_StartAllAI()
+        {
+            mainGameAIController.StartAllAI();
+        }
     }
 }

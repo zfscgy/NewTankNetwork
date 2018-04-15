@@ -47,7 +47,7 @@ namespace ZF.MainGame.Base.Weapon
             {
                 GetComponent<Tank>().UpdateTankInfo();
                 GameObject shell;
-                if (Global.GameState.mode != Global.GameMode.inOfflineGame)
+                if (Global.GameState.mode != Global.GameMode.inOfflineGame && Global.GameState.mode != Global.GameMode.asOfflineAIServer)
                 {
                     shell = PhotonNetwork.Instantiate(components.shellPrefab.name,
                         components.gun.position + 8f * components.gun.forward, components.gun.rotation, 0);
@@ -61,7 +61,6 @@ namespace ZF.MainGame.Base.Weapon
                     shell.GetComponent<Shell>().Init(this, Ammos[currentWeapon].config.damage, 
                         GetShellInitialVelocity(), config.shellLifetime, false);
                 }
-                
                 return true;
             }
             else

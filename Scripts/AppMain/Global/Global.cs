@@ -25,6 +25,8 @@ namespace ZF.Global
         isServer,
         inGame,
         inOfflineGame,
+        asOfflineAIServer,
+        isPlayBack,
     }
 
     public enum GameStage
@@ -38,6 +40,7 @@ namespace ZF.Global
     public static class Singletons
     {
         public static WholeGame.WholeGameController wholeGameController;
+        public static WholeGame.GameRoutineController gameRoutineController = new WholeGame.GameRoutineController();
     }
 
     public static class GameState

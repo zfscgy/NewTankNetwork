@@ -7,6 +7,17 @@ namespace ZF.AI
     using ZF.Communication;
     using ZF.MainGame.Base;
     [System.Serializable]
+    enum Mode
+    {
+        direct,
+        stop,
+        slow,
+        avoiding,
+    }
+    /// <summary>
+    /// Navigator to help tank go to the destination and to avoid collision with other tanks.
+    /// Its performance is very poor!
+    /// </summary>
     public class AutoNavigator:MonoBehaviour
     {
         public Vector3 targetRotation;
@@ -16,38 +27,96 @@ namespace ZF.AI
         public float positionError = 10f;
         public float angleError = 5f;
 
-        private bool isNavigating = false;
+        public float collisionR = 15f;
+        public float avoidanceT = 5f;
+        public float avoidanceR = 3f;
+        public float avoidanceRNear = 3f;
+        public float avoidVHRatio = 2f;
+        public float additionalV = 5f;
+        public float horizentalDuration = 0.9f;
+        public float verticalDuration = 0.95f;
+
+        
+        private Mode mode = Mode.stop;
         private Vector3 destination;
         private NavMeshPath navMeshPath;
         private Vector3 targetPosition;
         private float targetSpeed;
         private int next = 1;
-
+        private float horizontalTendency = 0f;
+        private float verticalTendency = 0f;
+        private Mode lastMode;
         private void Update()
         {
-            if(!isNavigating)
+            //Debug.Log("Tendencies" + verticalTendency + " " + horizontalTendency);
+            if (mode != Mode.avoiding && (Mathf.Abs(horizontalTendency) > 0.5f || Mathf.Abs(verticalTendency) > 0.5f))
             {
+                lastMode = mode;
+                mode = Mode.avoiding;
+            }
+            if (mode == Mode.avoiding && (Mathf.Abs(horizontalTendency) <= 0.5f && Mathf.Abs(verticalTendency) <= 0.5f))
+            {
+                mode = lastMode;
+                if(mode == Mode.direct)
+                {
+                    SetNewDestination(destination);
+                }
+            }
+            if (mode == Mode.stop)
+            {
+                instruction.SetKey(0);
                 return;
             }
-            Debug.DrawLine(tank.transform.position, navMeshPath.corners[next - 1], Color.blue);
-            for (int i = 0; i < navMeshPath.corners.Length - 1; i++)
+            else if (mode == Mode.direct)
             {
-                Debug.DrawLine(navMeshPath.corners[i], navMeshPath.corners[i + 1], Color.red);
+                Debug.DrawLine(tank.transform.position, navMeshPath.corners[next - 1], Color.blue);
+                for (int i = 0; i < navMeshPath.corners.Length - 1; i++)
+                {
+                    Debug.DrawLine(navMeshPath.corners[i], navMeshPath.corners[i + 1], Color.red);
+                }
+                if (NextPosition() == 1)
+                {
+                    if (next == navMeshPath.corners.Length)
+                    {
+                        targetPosition = destination;
+                        CalculateTargetSpeed();
+                        mode = Mode.stop;
+                        return;
+                    }
+                    else
+                    {
+                        CalculateTargetSpeed();
+                        targetPosition = navMeshPath.corners[next++];
+                    }
+                }
             }
-            if (NextPosition() == 1)
+            else if(mode == Mode.avoiding)
             {
-                if (next == navMeshPath.corners.Length)
+                int AD = 0;
+                if(horizontalTendency > 0.5f)
                 {
-                    targetPosition = destination;
-                    CalculateTargetSpeed();
-                    isNavigating = false;
-                    return;
+                    AD = 1;
                 }
-                else
+                else if(horizontalTendency < -0.5f)
                 {
-                    CalculateTargetSpeed();
-                    targetPosition = navMeshPath.corners[next++];                   
+                    AD = 2;
                 }
+                if(Vector3.Dot(tank.motion.GetVelocity() , tank.transform.forward) < 0)
+                {
+                    AD = (AD % 2) + 1;
+                }
+                int WS = 0;
+                if(verticalTendency > 0.5f)  //This remains a question because when verticalTendency == 0 means you have let it stops
+                {
+                    WS = 2;
+                }
+                else if(verticalTendency < -0.5f)
+                {
+                    WS = 1;
+                }
+                instruction.SetKey((byte)(WS + (AD << 2)));
+                horizontalTendency *= horizentalDuration;
+                verticalTendency *= verticalDuration;
             }
         }
 
@@ -62,14 +131,18 @@ namespace ZF.AI
         {
             next = 1;
             destination = _destination;
+            //Debug.Log("Path length:" + navMeshPath.corners.Length);
             NavMesh.CalculatePath(tank.transform.position, destination, NavMesh.AllAreas, navMeshPath);
-            Debug.Log("Path length:" + navMeshPath.corners.Length);
             CalculateTargetSpeed();
             targetPosition = navMeshPath.corners[next++];
-            isNavigating = true;
+            mode = Mode.direct;
+        }
+        public void SetStopMode()
+        {
+            mode = Mode.stop;
         }
 
-        public int NextPosition()
+        private int NextPosition()
         {
             Vector3 currentPosition = tank.transform.position;
             Vector3 currentRotation = tank.transform.eulerAngles;
@@ -83,10 +156,10 @@ namespace ZF.AI
             {
                 degree = degree - 360f;
             }
-            Debug.Log("Distance:" + (targetPosition - currentPosition).magnitude);
+            //Debug.Log("Distance:" + (targetPosition - currentPosition).magnitude);
             if ((targetPosition - currentPosition).magnitude < positionError)
             {
-                Debug.Log("Almost Equals!");
+                //Debug.Log("Almost Equals!");
                 instruction.SetInstruction(0, 0, new Vector3());
                 return 1;
             }
@@ -133,5 +206,57 @@ namespace ZF.AI
             }
             //Debug.Log("Target Speed:" + targetSpeed);
         }
+
+        public void MoveableDetected(Vector3 position, Vector3 velocity)
+        {
+            //Debug.Log("Moveable Detected!");
+            Debug.DrawLine(position, position + velocity, Color.gray);
+            Vector3 dist = tank.transform.position - position;
+            Vector3 v = velocity - tank.motion.GetVelocity();
+            float cosTheta = Vector3.Dot(v, dist) / (v.magnitude * dist.magnitude);
+            if (cosTheta < 0.1f)
+            {
+                return;
+            }
+            Vector3 estimatedPos;
+            if (dist.magnitude <= 3 * collisionR + 0.1f || v.magnitude < 0.1f)
+            {
+                estimatedPos = position;
+            }
+            else
+            {
+                float tan2Theta = 1 / (cosTheta * cosTheta) - 1;
+                float delta = collisionR * collisionR * (1 + tan2Theta) - dist.magnitude * dist.magnitude * tan2Theta;
+                if (delta < 0f)
+                {
+                    return;
+                }
+                float x = (dist.magnitude * tan2Theta + Mathf.Sqrt(delta)) / (1 + tan2Theta);
+                estimatedPos = position + v / v.magnitude * (dist.magnitude - x) / (1 + tan2Theta) * 1 / cosTheta;
+            }
+            //Debug.DrawLine(position, estimatedPos);
+            //Debug.DrawLine(tank.transform.position, estimatedPos, Color.red);
+            float estimateTime = (estimatedPos - position).magnitude / (v.magnitude + additionalV);
+            float v_towards = v.magnitude < 0.01f ? 0f : Vector3.Dot(v, tank.transform.forward) / v.magnitude;
+            float v_off = v.magnitude < 0.01f ? 0f : Vector3.Dot(v, tank.transform.right) / v.magnitude;
+            float collision_toward = Vector3.Dot((estimatedPos - tank.transform.position), tank.transform.forward);  // positive means in front , negative means behind
+            float collision_off = Vector3.Dot((estimatedPos - tank.transform.position), tank.transform.right); //positive means in right
+            if(Mathf.Abs(collision_off) < 0.3f)
+            {
+                collision_off -= Mathf.Sign(collision_off) * 0.3f;
+            }
+            float myV_towards = Vector3.Dot(tank.motion.GetVelocity(), tank.transform.forward);
+            horizontalTendency += avoidanceR * Mathf.Abs(v_towards) * collisionR / collision_off;
+            if (dist.magnitude < 3 * collisionR && Mathf.Abs(collision_off)/Mathf.Abs(collision_toward) < 0.5f)
+            {
+                //Debug.Log("Very Close and Vertical!");
+                verticalTendency += avoidanceR * avoidanceRNear * Mathf.Sign(collision_toward);
+            }
+            else
+            {
+                verticalTendency -= avoidanceR * myV_towards / additionalV * avoidanceT / (estimateTime + avoidanceT) + 0.5f * Mathf.Abs(horizontalTendency);
+            }
+        }
+
     }
 }

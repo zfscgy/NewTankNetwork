@@ -12,8 +12,7 @@ namespace ZF.MainGame.Base
         private bool detectTrigger = true;
         private void Start()
         {
-            if (Global.GameState.mode != Global.GameMode.isServer && 
-                Global.GameState.mode != Global.GameMode.inOfflineGame)
+            if (Global.GameState.mode == Global.GameMode.inRoom)
             {
                 detectTrigger = false;
             }
@@ -76,7 +75,8 @@ namespace ZF.MainGame.Base
                 hitInfo.totalDamage = (byte)damage;
                 hitInfo.victimSeat = (byte) GetComponent<Tank>().seatID;
                 hitInfo.attackerSeat = (byte)shell.shooter.GetComponent<Tank>().seatID;
-                Global.GameState.hitStat.NewHit(hitInfo);
+                hitInfo.position = shell.transform.position;
+                
                 shell.HitCollier(Weapon.HitMode.Tank, damage, isKilled);
             }
         }

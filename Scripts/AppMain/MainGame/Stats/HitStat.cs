@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UnityEngine;
 
 namespace ZF.MainGame.Stats
 {
@@ -13,11 +14,12 @@ namespace ZF.MainGame.Stats
         public Base.TankPart hitPart;
         public byte partDamage;
         public byte killed;
+        public Vector3 position;
     }
     public class HitStat
     {
         private List<HitInfo> HitList = new List<HitInfo>();
-        public void NewHit(HitInfo hitInfo)
+        public void AddHit(HitInfo hitInfo)
         {
             HitList.Add(hitInfo);
         }

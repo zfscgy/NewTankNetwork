@@ -3,31 +3,47 @@ using System.Collections.Generic;
 using UnityEngine;
 namespace ZF.AI
 {
-
-    using MainGame.Base;
+    using ZF.MainGame;
+    using ZF.MainGame.Base;
     public class MainGameAIController : MonoBehaviour
     {
         public GameObject aiTankPrefab;
         public BirthPoints birthPoints;
-        public Server.ServerMainController serverMainController;
-        public MainGame.Client.MainGameLoader mainGameController;
+        public Transform AIInitialDestination;
+        private IMainMaster mainMaster;
+        private List<TankAIController> TankAIControllers = new List<TankAIController>();
+        public void Init(IMainMaster _mainMaster)
+        {
+            TankAIControllers.Clear();
+            mainMaster = _mainMaster;
+            gameObject.SetActive(true);
+        }
         public void AddOneBot()
         {
-            int seat = Global.GameState.playerNum++;
-            Transform startTransform = birthPoints.points[seat];
-            Tank newBot = Instantiate(aiTankPrefab, startTransform.position, startTransform.rotation).GetComponentInChildren<Tank>();
-            if(Global.GameState.mode == Global.GameMode.isServer)
+            Tank newBot = Instantiate(aiTankPrefab).GetComponentInChildren<Tank>();
+            if(mainMaster.SetBot(newBot))
             {
-                serverMainController.AddBot(newBot);
+                TankAIControllers.Add(newBot.AIController);
             }
             else
             {
-                mainGameController.SetBotOffline(newBot);
+                Destroy(newBot);
             }
         }
-        public void Init()
+        public void StartAllAI()
         {
-            gameObject.SetActive(true);
+            for (int i = 0; i < TankAIControllers.Count; i++)
+            {
+                TankAIControllers[i].SetDestinationPosition(AIInitialDestination.position);
+                TankAIControllers[i].StartAI();
+            }
+        }
+        public void StopAllAIs()
+        {
+            for (int i = 0; i < TankAIControllers.Count; i++)
+            {
+                TankAIControllers[i].StopAI();
+            }
         }
     }
 }

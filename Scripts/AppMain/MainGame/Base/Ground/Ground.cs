@@ -9,8 +9,8 @@ namespace ZF.MainGame.Base
         void Start()
         {
             Debug.Log(sizeof(float));
-            if (Global.GameState.mode != Global.GameMode.isServer && 
-                Global.GameState.mode != Global.GameMode.inOfflineGame)
+            //When it is a client, it does not do any collision check
+            if (Global.GameState.mode == Global.GameMode.inRoom)
             {
                 detectingTrigger = false;
             }
@@ -29,6 +29,7 @@ namespace ZF.MainGame.Base
                 return;
             }
             GameObject collider = other.gameObject;
+            //Using a ray to check where is the reasl point
             if (collider.layer == LayerMask.NameToLayer("Bullet"))
             {
                 Weapon.Shell shell = collider.transform.parent.GetComponent<Weapon.Shell>();

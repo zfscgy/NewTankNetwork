@@ -76,7 +76,7 @@ namespace ZF.MainGame.Base
         {
             Ray cameraRay = mainCamera.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0));
             RaycastHit hitPoint;
-            if (Physics.Raycast(cameraRay, out hitPoint, 400.0f))
+            if (Physics.Raycast(cameraRay, out hitPoint, 400.0f, LayerMask.GetMask("Ground", "Tank")))
             {
                 return hitPoint.point;
             }

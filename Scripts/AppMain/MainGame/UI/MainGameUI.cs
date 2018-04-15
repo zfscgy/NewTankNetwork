@@ -28,7 +28,11 @@ namespace ZF.MainGame
         {
             ControlCursor();
             UpdateFPSText();
-            UpdateSpeedText();
+            if (Global.GameState.mode == Global.GameMode.inOfflineGame || Global.GameState.mode == Global.GameMode.inRoom)
+            {
+
+                UpdateSpeedText();
+            }
         }
         private void OnGUI()
         {

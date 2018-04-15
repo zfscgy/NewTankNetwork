@@ -61,6 +61,13 @@ namespace ZF.StartGame
             return 0;
         }
 
+        public int PlayOfflineAIServer()
+        {
+            GameState.mode = GameMode.asOfflineAIServer;
+            SceneManager.LoadScene(Global.mainSceneName);
+            return 0;
+        }
+
         public int StartServer(string roomName)
         {
             if(!PhotonNetwork.connected)

@@ -29,6 +29,7 @@ namespace ZF.MainGame.Base
             motion.SetMode(TankMode.Sync);
             motion.tankNetworkComponents.Set(syncer);
             isInitialized = true;
+            UpdateTankInfo();
         }
         public void InitOnServer(int _seatID, Instruction instruction, Syncer syncer)
         {
@@ -43,6 +44,7 @@ namespace ZF.MainGame.Base
             motion.tankNetworkComponents.Set(syncer);
             weapon.Init(instruction);
             isInitialized = true;
+            UpdateTankInfo();
         }
         public void InitOnOfflineGame(int _seatID, Instruction instruction)
         {
@@ -56,6 +58,7 @@ namespace ZF.MainGame.Base
             motion.SetInstruction(instruction);
             weapon.Init(instruction);
             isInitialized = true;
+            UpdateTankInfo();
         }
         public void InitAI(int _seatID, bool isOnServer, Syncer syncer = null)
         {
@@ -70,8 +73,9 @@ namespace ZF.MainGame.Base
             {
                 motion.tankNetworkComponents.Set(syncer);
             }
-            AIController.Init();
+            AIController.Init(TankAIState.waiting);
             isInitialized = true;
+            UpdateTankInfo();
         }
 
         /*
@@ -102,6 +106,19 @@ namespace ZF.MainGame.Base
             else if (Global.GameState.mode == Global.GameMode.inOfflineGame)
             {
                 Global.GameState.gameStatManager.CallUIToUpdate();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Die()
+        {
+            motion.enabled = false;
+            weapon.enabled = false;
+            if (AIController != null)
+            {
+                AIController.StopAI();
             }
         }
     }

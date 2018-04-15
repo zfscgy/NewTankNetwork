@@ -10,24 +10,33 @@ namespace ZF.MainGame.Environment
     public class SensoringSimulator:MonoBehaviour
     {
         private Tank[] AllTanks;
+        public Transform warPoint;
         public void Init(Tank[] _AllTanks)
         {
             enabled = true;
             AllTanks = _AllTanks;
         }
-        public Tank[] FindTanksWithinDistance(Vector3 position, float maxDistance, int seatID = -1)
+        public void FindEnemyTanksWithinDistance(Vector3 position, float maxDistance, List<Tank> Tanks, int seatID = -1)
         {
-            Tank[] Tanks = new Tank[GameState.playerNum];
-            int n = 0;
-            for(int i = 0; i< GameState.playerNum; i++)
+            for(int i = 0; i< AllTanks.Length; i++)
             {
-                Debug.Log("Finding Tank:" + i);
-                if ((AllTanks[i].transform.position - position).magnitude <= maxDistance && AllTanks[i].seatID != seatID)
+                if (AllTanks[i]!= null && !AllTanks[i].body.IsDead() && !Tanks.Contains(AllTanks[i]) &&
+                    (AllTanks[i].transform.position - position).magnitude <= maxDistance && AllTanks[i].seatID / 5 != seatID / 5)
                 {
-                    Tanks[n++] = AllTanks[i];
+                    Tanks.Add(AllTanks[i]);
                 }
             }
-            return Tanks;
+        }
+        public void LoseEnemyTanksWithoutDistance(Vector3 position, float maxDistance, List<Tank> Tanks)
+        {
+            for (int i = 0; i < AllTanks.Length; i++)
+            {
+                if (AllTanks[i] != null && Tanks.Contains(AllTanks[i]) &&
+                    (AllTanks[i].body.IsDead() || (AllTanks[i].transform.position - position).magnitude > maxDistance)) 
+                {
+                    Tanks.Remove(AllTanks[i]);
+                }
+            }
         }
     }
 }
