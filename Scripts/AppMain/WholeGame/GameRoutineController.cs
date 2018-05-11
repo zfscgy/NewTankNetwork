@@ -43,7 +43,7 @@ namespace ZF.WholeGame
                 {
                     if(AllTanks[i] == null)
                     {
-                        GameState.playerNum++;
+                        GameState.nPlayer++;
                         AllPlayerStatus[i] = PlayerStatus.active;
                         if (i >= 5) blueCount++; else redCount++;
                         return i;
@@ -61,7 +61,7 @@ namespace ZF.WholeGame
         {
             if (seatID < Global.playerPerRoom && AllTanks[seatID] == null)
             {
-                GameState.playerNum++;
+                GameState.nPlayer++;
                 AllPlayerStatus[seatID] = PlayerStatus.active;
                 if (seatID >= 5) blueCount++; else redCount++;
                 return seatID;
@@ -105,7 +105,7 @@ namespace ZF.WholeGame
         }
         public void GameEnded(int win)
         {
-            Singletons.wholeGameController.WaitToExec(Singletons.wholeGameController.mainGameLoader.Restart, 10);
+            Singletons.wholeGameController.WaitToExec(Singletons.wholeGameController.mainGameLoader.Restart, 100);
 
         }
 

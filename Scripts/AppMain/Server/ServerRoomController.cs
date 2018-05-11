@@ -80,8 +80,8 @@ namespace ZF.Server
 
         public void StartGame()
         {
-            Global.GameState.playerNum = playerNum;
-            Global.GameState.PlayerIDs = RoomSeats;
+            Global.GameState.nPlayer = playerNum;
+            Global.GameState.AllPlayerIDs = RoomSeats;
             PhotonNetwork.LoadLevel("MainGame");
         }
     }

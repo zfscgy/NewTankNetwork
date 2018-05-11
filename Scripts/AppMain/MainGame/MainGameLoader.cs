@@ -10,12 +10,14 @@ namespace ZF.MainGame
     using Offline;
     using AI;
     using Global;
+    using WholeGame.GameReplay;
     public class MainGameLoader:Photon.MonoBehaviour
     {
         public ClientMainController clientMainController;
         public ServerMainController serverMainController;
         public OfflineMainController offlineMainController;
         public MainGameAIController mainGameAIController;
+        public GameReplayer gameReplayer;
         private void Awake()
         {
             Singletons.wholeGameController.mainGameLoader = this;
@@ -49,7 +51,7 @@ namespace ZF.MainGame
             }
             else if(GameState.mode == GameMode.isPlayBack)
             {
-
+                gameReplayer.Init(GameState.saveFilename);
             }
         }
 

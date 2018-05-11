@@ -9,6 +9,7 @@ namespace ZF.MainGame
     public interface IMainMaster
     {
         bool SetBot(Tank aiTank);
+        bool SetBot(Tank aiTank, int id);
         bool DeleteBot(Tank aiTank);
     }
 }

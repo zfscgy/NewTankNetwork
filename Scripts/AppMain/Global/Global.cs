@@ -41,6 +41,7 @@ namespace ZF.Global
     {
         public static WholeGame.WholeGameController wholeGameController;
         public static WholeGame.GameRoutineController gameRoutineController = new WholeGame.GameRoutineController();
+        public static WholeGame.GameInteractionManager gameInteractionManager = new WholeGame.GameInteractionManager();
     }
 
     public static class GameState
@@ -48,10 +49,11 @@ namespace ZF.Global
         public static bool isOnline = false;
         public static GameMode mode;
         public static GameStage stage;
+        public static bool isRecording;
+        public static string saveFilename;
         public static int playerID;
-        public static int playerNum;
-        public static int[] PlayerIDs;
-        public static MainGame.Stats.HitStat hitStat = new MainGame.Stats.HitStat();
+        public static int nPlayer;
+        public static int[] AllPlayerIDs;
         public static MainGame.Stats.GameStatManager gameStatManager;
     }
 

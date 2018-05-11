@@ -241,6 +241,7 @@ namespace ZF.AI.StateMachine
         }
     }
 
+
     public class TankState_Shooting : State
     {
         float aimingInterval = 0.1f;
@@ -305,6 +306,7 @@ namespace ZF.AI.StateMachine
         public override void Start()
         {
             lastAimingTime = Time.time - aimingInterval;
+            (stateInfo as TankStateInfo).instruction.SetMouse(0);
         }
         public override void Action()
         {

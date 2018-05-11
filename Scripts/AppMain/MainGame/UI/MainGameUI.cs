@@ -6,6 +6,7 @@ namespace ZF.MainGame
 {
     public class MainGameUI : MonoBehaviour
     {
+        public GameObject Canvas_Info;
         public Text TextFPS;
         public Text TextPing;
 
@@ -46,6 +47,7 @@ namespace ZF.MainGame
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
             lastTime = Time.time;
+            Canvas_Info.SetActive(true);
         }
 
         private float lastTime;

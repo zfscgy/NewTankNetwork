@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
+
 namespace ZF.StartGame
 {
     enum State
@@ -23,6 +24,7 @@ namespace ZF.StartGame
         public Button buttonConnect;
         public InputField inputPlayerName;
         public Button buttonRename;
+        public Toggle toggleIsRecording;
         public InputField inputRoomName;
         public Button buttonStartServer;
         public Text textState;
@@ -103,8 +105,16 @@ namespace ZF.StartGame
             Debug.Log("Trying to join id:" + id);
             TryJoinRoom(RoomInfos[id].Split(' ')[0]);
         }
+        public void OnClick_Replay()
+        {
+            string path = SFB.StandaloneFileBrowser.OpenFilePanel("选择录像文件","","rec",false)[0];
+            lobbyManager.Replay(path);
+        }
 
-
+        public void OnValueChanged_IsRecording()
+        {
+            lobbyManager.SetRecord(toggleIsRecording.isOn);
+        }
 
         private void UpdateRoomList()
         {

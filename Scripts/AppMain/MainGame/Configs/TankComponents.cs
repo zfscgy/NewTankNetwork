@@ -26,7 +26,7 @@ namespace ZF.Configs
         {
             Ray turretRay = new Ray(gun.position + 3 * gun.forward, gun.forward);
             RaycastHit hitPoint;
-            if (Physics.Raycast(turretRay, out hitPoint, Global.GameSettings.maxRayDistance))
+            if (Physics.Raycast(turretRay, out hitPoint, Global.GameSettings.maxRayDistance, LayerMask.GetMask("Ground", "Tank")))
             {
                 return hitPoint.point;
             }

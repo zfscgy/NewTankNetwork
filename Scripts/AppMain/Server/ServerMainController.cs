@@ -7,7 +7,7 @@ namespace ZF.Server
     using MainGame;
     using MainGame.Environment;
     using MainGame.Base;
-    using MainGame.Base.Weapon;
+    using WholeGame.GameReplay;
     using Global;
     using Communication;
     using InstructionServer;
@@ -24,6 +24,7 @@ namespace ZF.Server
         public ServerInfoHUD serverInfoHUD;
         public InputManager serverInputManager;
         public SensoringSimulator sensoringSimulator;
+        public GameRecorder recorder;
         Instruction[] clientInstructions = new Instruction[Global.playerPerRoom + 1];
         Tank[] clientTanks = Singletons.gameRoutineController.GetTanks();
         ServerCameraController serverCameraController;
@@ -40,8 +41,8 @@ namespace ZF.Server
         }
         public void Init()
         {
-
-            playerList = GameState.PlayerIDs;
+            GameState.playerID = 0;
+            playerList = GameState.AllPlayerIDs;
             /*At the beginning of the mainGame, the server will get playerList from server's roomController
              * Then instantiaite all the player tanks locally
              * */
@@ -70,6 +71,16 @@ namespace ZF.Server
                 sensoringSimulator.Init(clientTanks);
             }
             statManager.Init(clientTanks);
+            
+            if (GameState.isRecording)
+            {
+                recorder.Init(clientTanks, statManager.GetAllStats(), System.DateTime.Now.ToLocalTime().ToString("yyyyMMdd_HHmmss")+".rec");
+                recorder.StartRecord();
+            }
+            else
+            {
+                recorder.enabled = false;
+            }
             serverCameraController = Instantiate(serverCameraPreafab, 
                 birthPoints.points[0].position + new Vector3(0,5,0),
                 birthPoints.points[0].rotation).GetComponent<ServerCameraController>();
@@ -83,7 +94,7 @@ namespace ZF.Server
         public void RPCOnePlayerReady()
         {
             ready++;
-            if(ready == GameState.playerNum)
+            if(ready == GameState.nPlayer)
             {
                 photonView.RPC("RPCSetPlayers", PhotonTargets.Others, playerList, SyncerViewIDs);
                 for(int i = 0;i<playerList.Length;i++)
@@ -104,6 +115,34 @@ namespace ZF.Server
         {
             int botSeatID = Singletons.gameRoutineController.RegisterNewTank();
             if(botSeatID == -1)
+            {
+                return false;
+            }
+            aiTank.transform.position = birthPoints.points[botSeatID].position;
+            aiTank.transform.rotation = birthPoints.points[botSeatID].rotation;
+            clientTanks[botSeatID] = aiTank;
+            if (!isOffline)
+            {
+                Syncer newSyncer = PhotonNetwork.Instantiate(syncerPrefab.name,
+                    clientTanks[botSeatID].transform.position,
+                    clientTanks[botSeatID].transform.rotation, 0).GetComponent<Syncer>();
+
+                int newSyncerID = newSyncer.photonView.viewID;
+                aiTank.InitAI(botSeatID, true, newSyncer);
+                photonView.RPC("RPCSetBot", PhotonTargets.Others, botSeatID, newSyncerID);
+            }
+            else
+            {
+                aiTank.InitAI(botSeatID, false);
+            }
+            statManager.AddTank(aiTank);
+            return true;
+        }
+
+        bool IMainMaster.SetBot(Tank aiTank, int id)
+        {
+            int botSeatID = Singletons.gameRoutineController.RegisterNewTank(id);
+            if (botSeatID == -1)
             {
                 return false;
             }

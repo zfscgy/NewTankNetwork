@@ -19,6 +19,7 @@ namespace ZF.MainGame.Offline
         public Stats.GameStatManager statManager;
         public UI.CrosshairManager crosshairManager;
         public Server.ServerUIController serverUIController;
+        public MainGameUI mainGameUI;
         public Environment.SensoringSimulator sensoringSimulator;
         private CameraController playerCamera;
         private Tank playerTank;
@@ -26,8 +27,10 @@ namespace ZF.MainGame.Offline
         public void Init()
         {
             enabled = true;
-            GameState.playerNum = 1;
+            GameState.nPlayer = 1;
             GameState.playerID = 0;
+            statManager.Init(Players);
+            Singletons.gameRoutineController.RegisterNewTank();
             playerCamera = Instantiate(cameraPrefab).GetComponent<Base.CameraController>();
             playerTank = Instantiate(playerPrefab, birthPoints.points[0].position, birthPoints.points[0].rotation).GetComponentInChildren<Tank>();
             Players[0] = playerTank;
@@ -35,7 +38,8 @@ namespace ZF.MainGame.Offline
             playerCamera.Init(inputManager, playerTank.transform);
             instructionManager.SetCamera(playerCamera);
             crosshairManager.Init(playerTank.motion.tankComponents, playerCamera.GetComponentInChildren<Camera>());
-            statManager.Init(Players);
+            statManager.AddTank(playerTank);
+            mainGameUI.Init(statManager.GetAllStats()[0]);
             playerTank.UpdateTankInfo();
             serverUIController.Init();
             sensoringSimulator.Init(Players);
@@ -48,15 +52,29 @@ namespace ZF.MainGame.Offline
 
         bool IMainMaster.SetBot(Tank aiTank)
         {
-            if(GameState.playerNum == Global.playerPerRoom)
+            int seatID = Singletons.gameRoutineController.RegisterNewTank();
+            if(seatID == -1)
             {
                 return false;
             }
-            aiTank.transform.position = birthPoints.points[GameState.playerNum].position;
-            aiTank.transform.rotation = birthPoints.points[GameState.playerNum].rotation;
-            Players[GameState.playerNum] = aiTank;
-            aiTank.InitAI(GameState.playerNum, false);
-            GameState.playerNum++;
+            aiTank.transform.position = birthPoints.points[seatID].position;
+            aiTank.transform.rotation = birthPoints.points[seatID].rotation;
+            Players[seatID] = aiTank;
+            aiTank.InitAI(seatID, false);
+            return true;
+        }
+        
+        bool IMainMaster.SetBot(Tank aiTank, int id)
+        {
+            int seatID = Singletons.gameRoutineController.RegisterNewTank(id);
+            if (seatID == -1)
+            {
+                return false;
+            }
+            aiTank.transform.position = birthPoints.points[seatID].position;
+            aiTank.transform.rotation = birthPoints.points[seatID].rotation;
+            Players[seatID] = aiTank;
+            aiTank.InitAI(seatID, false);
             return true;
         }
     }

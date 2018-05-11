@@ -16,6 +16,7 @@ namespace ZF.Server
         private Camera camera;
         public void Init(TankStat[] _PlayerInfoStats, Tank[] _PlayerTanks, Camera _camera)
         {
+            gameObject.SetActive(true);
             PlayerInfoStats = _PlayerInfoStats;
             PlayerTanks = _PlayerTanks;
             camera = _camera;

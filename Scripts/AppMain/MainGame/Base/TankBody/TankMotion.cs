@@ -66,6 +66,10 @@ namespace ZF.MainGame.Base
                         new Vector3(tankComponents.gun.localEulerAngles.x, tankComponents.turret.localEulerAngles.y, 0);
                 }
             }
+            else if (mode == TankMode.None)
+            {
+
+            }
             else
             {
                 ExecuteInstruction();

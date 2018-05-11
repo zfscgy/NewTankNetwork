@@ -61,6 +61,7 @@ namespace ZF.MainGame.Base.Weapon
                     shell.GetComponent<Shell>().Init(this, Ammos[currentWeapon].config.damage, 
                         GetShellInitialVelocity(), config.shellLifetime, false);
                 }
+                Global.Singletons.gameInteractionManager.NewShoot(GetComponent<Tank>().seatID);
                 return true;
             }
             else

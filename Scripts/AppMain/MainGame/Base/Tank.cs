@@ -16,7 +16,10 @@ namespace ZF.MainGame.Base
         public TankWeapon weapon;
         public TankMotion motion;
         public TankAIController AIController;
+
+        public Texts.Info3dText textDisplayer;
         private bool isInitialized = false;
+        private Color[] Colors = new Color[] { Color.red, Color.blue };
         public void InitSyncMode(int _seatID, Syncer syncer)
         {
             if (isInitialized)
@@ -29,6 +32,14 @@ namespace ZF.MainGame.Base
             motion.SetMode(TankMode.Sync);
             motion.tankNetworkComponents.Set(syncer);
             isInitialized = true;
+            if(seatID != Global.GameState.playerID)
+            {
+                textDisplayer.Init(Colors[2 * seatID / Global.Global.playerPerRoom], seatID.ToString());
+            }
+            else
+            {
+                textDisplayer.gameObject.SetActive(false);
+            }
             UpdateTankInfo();
         }
         public void InitOnServer(int _seatID, Instruction instruction, Syncer syncer)
@@ -44,6 +55,14 @@ namespace ZF.MainGame.Base
             motion.tankNetworkComponents.Set(syncer);
             weapon.Init(instruction);
             isInitialized = true;
+            if (seatID != Global.GameState.playerID)
+            {
+                textDisplayer.Init(Colors[2 * seatID / Global.Global.playerPerRoom], seatID.ToString());
+            }
+            else
+            {
+                textDisplayer.gameObject.SetActive(false);
+            }
             UpdateTankInfo();
         }
         public void InitOnOfflineGame(int _seatID, Instruction instruction)
@@ -58,6 +77,14 @@ namespace ZF.MainGame.Base
             motion.SetInstruction(instruction);
             weapon.Init(instruction);
             isInitialized = true;
+            if (seatID != Global.GameState.playerID)
+            {
+                textDisplayer.Init(Colors[2 * seatID / Global.Global.playerPerRoom], seatID.ToString());
+            }
+            else
+            {
+                textDisplayer.gameObject.SetActive(false);
+            }
             UpdateTankInfo();
         }
         public void InitAI(int _seatID, bool isOnServer, Syncer syncer = null)
@@ -75,6 +102,14 @@ namespace ZF.MainGame.Base
             }
             AIController.Init(TankAIState.waiting);
             isInitialized = true;
+            if (seatID != Global.GameState.playerID)
+            {
+                textDisplayer.Init(Colors[2 * seatID / Global.Global.playerPerRoom], seatID.ToString());
+            }
+            else
+            {
+                textDisplayer.gameObject.SetActive(false);
+            }
             UpdateTankInfo();
         }
 
@@ -94,7 +129,6 @@ namespace ZF.MainGame.Base
             stat.output = weapon.GetTotalOutput();
             stat.hit = weapon.GetTotalHit();
             stat.kill = weapon.GetTotalKill();
-            stat.speed = (int)(motion.m_rigidbody.velocity.magnitude * 3.6f);
             for(int i = 0;i < Global.GameSettings.n_AmmoKind; i++)
             {
                 stat.AmmoRemain[i] = weapon.Ammos[i].GetCurrentNumber();
@@ -108,7 +142,10 @@ namespace ZF.MainGame.Base
                 Global.GameState.gameStatManager.CallUIToUpdate();
             }
         }
-
+        public void UpdateSpeedInfo()
+        {
+            stat.speed = (int)motion.GetSpeed();
+        }
         /// <summary>
         /// 
         /// </summary>
@@ -120,6 +157,12 @@ namespace ZF.MainGame.Base
             {
                 AIController.StopAI();
             }
+        }
+
+
+        private void Update()
+        {
+            UpdateSpeedInfo();
         }
     }
 }

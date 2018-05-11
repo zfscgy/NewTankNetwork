@@ -39,6 +39,10 @@ namespace ZF.MainGame.Stats
                 {
                     PlayerStats[i] = _PlayerTanks[i].GetStat();
                 }
+                else
+                {
+                    PlayerStats[i] = new TankStat();
+                }
             }
         }
 
@@ -63,7 +67,7 @@ namespace ZF.MainGame.Stats
 
         public void CallClientToUpdateStat(int index)
         {
-            photonView.RPC("SetPlayerStat", PhotonPlayer.Find(GameState.PlayerIDs[index]), PlayerStats[index].ToBytesAll());
+            photonView.RPC("SetPlayerStat", PhotonPlayer.Find(GameState.AllPlayerIDs[index]), PlayerStats[index].ToBytesAll());
         }
         public void CallUIToUpdate()
         {

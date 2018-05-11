@@ -30,11 +30,26 @@ namespace ZF.AI
                 Destroy(newBot);
             }
         }
+        public bool AddOneBot(int id)
+        {
+            Tank newBot = Instantiate(aiTankPrefab).GetComponentInChildren<Tank>();
+            if (mainMaster.SetBot(newBot, id))
+            {
+                TankAIControllers.Add(newBot.AIController);
+                return true;
+            }
+            else
+            {
+                Destroy(newBot);
+                return false;
+            }
+
+        }
         public void StartAllAI()
         {
             for (int i = 0; i < TankAIControllers.Count; i++)
             {
-                TankAIControllers[i].SetDestinationPosition(AIInitialDestination.position);
+                TankAIControllers[i].DestinationPosition = AIInitialDestination.position;
                 TankAIControllers[i].StartAI();
             }
         }

@@ -41,21 +41,29 @@ namespace ZF.MainGame.Base
         }
 
         private float cameraDistance = 8f;
+        private bool isTelescope = false;
+        private Vector3 lastPosition;
+        private float lastMouseTime = -10f;
         private void ControlZoom()
         {
             float zoom = inputManager.GetScroll() * cameraConfig.zoomSpeed * Time.fixedDeltaTime;
             cameraDistance = Mathf.Clamp(cameraDistance + zoom, cameraConfig.distanceMin, cameraConfig.distanceMax);
             cameraComponents.camera.localPosition = -cameraDistance * Vector3.forward;
-            if (cameraConfig.distanceMin - 0.1 < cameraDistance && cameraDistance < cameraConfig.distanceMin + 1.0f)
+            if (inputManager.GetMouseRight() && Time.time - lastMouseTime > 0.5f)
             {
-                if (zoom < 0.0f)
+                lastMouseTime = Time.time;
+                if (!isTelescope)
                 {
                     mainCamera.fieldOfView = cameraConfig.fov_2;
+                    lastPosition = cameraComponents.camera.localPosition;
+                    cameraComponents.camera.localPosition = new Vector3(0f,0f,0f);
                 }
-                else if(zoom > 0.0f)
+                else
                 {
+                    cameraComponents.camera.localPosition = lastPosition;
                     mainCamera.fieldOfView = cameraConfig.fov_1;
                 }
+                isTelescope = !isTelescope;
             }
         }
 

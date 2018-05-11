@@ -112,5 +112,18 @@ namespace ZF.StartGame
             }
             return RoomInfos;
         }
+
+        public void SetRecord(bool isRecording)
+        {
+            GameState.isRecording = isRecording;
+        }
+
+        public void Replay(string filename)
+        {
+            GameState.isRecording = true;
+            GameState.saveFilename = filename;
+            GameState.mode = GameMode.isPlayBack;
+            SceneManager.LoadScene(Global.mainSceneName);
+        }
     }
 }

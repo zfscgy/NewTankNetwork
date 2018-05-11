@@ -29,40 +29,45 @@ namespace ZF.AI
         private List<Tank> ObservedEnemyTanks = new List<Tank>();
 
         private Transform destinationTransform;
-        public void SetDestinationTransform(Transform _destinationTransform)
+        public Transform DestinationTransform
         {
-            destinationTransform = _destinationTransform;
-        }
-        public Vector3 DestinationPosition
-        {
-            get { return DestinationPosition; }
+            get
+            {
+                return destinationTransform;
+            }
             set
             {
-                DestinationPosition = value;
-                if (tankStateInfo_motion != null)
+                destinationTransform = value;
+                if(tankStateInfo_motion!= null)
                 {
-                    tankStateInfo_motion.destinationPosition = DestinationPosition;
+                    tankStateInfo_motion.destinationTransform = destinationTransform;
                 }
             }
         }
-        public void SetDestinationPosition(Vector3 _destinationPosition)
+        private Vector3 destinationPosition;
+        public Vector3 DestinationPosition
         {
-            DestinationPosition = _destinationPosition;
-            if (tankStateInfo_motion != null)
+            get { return destinationPosition; }
+            set
             {
-                tankStateInfo_motion.destinationPosition = DestinationPosition;
+                destinationPosition = value;
+                if (tankStateInfo_motion != null)
+                {
+                    tankStateInfo_motion.destinationPosition = destinationPosition;
+                }
             }
         }
         private Transform TargetTransform;
+        private Tank targetTank;
         public Tank TargetTank
         {
-            get { return TargetTank; }
+            get { return targetTank; }
             set
             {
-                TargetTank = value;
+                targetTank = value;
                 if (tankStateInfo_shooting != null)
                 {
-                    tankStateInfo_shooting.targetTank = TargetTank;
+                    tankStateInfo_shooting.targetTank = targetTank;
                 }
             }
         }
@@ -126,7 +131,7 @@ namespace ZF.AI
 
         private float lastCheckTime = -10f;
         private float toleratingDistance = 10;
-
+        private float keepingDistance = 200f;
         private void Update()
         {
             if (state == TankAIState.waiting)
@@ -140,9 +145,20 @@ namespace ZF.AI
                     transform.position, configs.findingDistance, ObservedEnemyTanks, tank.seatID);
                 sensoringSimulator.LoseEnemyTanksWithoutDistance(
                     transform.position, configs.findingDistance, ObservedEnemyTanks);
-                if (ObservedEnemyTanks.Contains(TargetTank) && TryIfShootable(TargetTank.transform.position))
+                if (ObservedEnemyTanks.Contains(TargetTank) && TryIfShootable(TargetTank.transform.position) && ( targetTank.transform.position - transform.position).magnitude > keepingDistance)
                 {
-
+                    if(currentMotionState == MotionStates[(int)MotionStateIndices.going])
+                    {
+                        currentMotionState = MotionStates[(int)MotionStateIndices.stopping];
+                        currentMotionState.Start();
+                    }
+                }
+                else if(ObservedEnemyTanks.Contains(TargetTank) && 
+                    (!TryIfShootable(TargetTank.transform.position)|| (targetTank.transform.position - transform.position).magnitude > keepingDistance))
+                {
+                    DestinationPosition = TargetTank.transform.position;
+                    currentMotionState = MotionStates[(int)MotionStateIndices.going];
+                    currentMotionState.Start();
                 }
                 else
                 {

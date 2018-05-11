@@ -72,6 +72,7 @@ namespace ZF.WholeGame
             }
             waitingEvent = _waitingEvent;
             waitingTime = _waitingTime;
+            startTime = Time.time;
             isBusy = true;
             return true;
         }
